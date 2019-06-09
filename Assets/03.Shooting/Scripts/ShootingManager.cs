@@ -13,6 +13,8 @@ public class ShootingManager : MonoBehaviour
     public Mesh mesh;
     public float bulletSpeed = 100f;
     public float shootPerSeconds = 10f;
+    public float shootAngle;
+    public int shootCount = 1;
 
     private void Awake()
     {
