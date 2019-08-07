@@ -340,7 +340,7 @@ Chunk 的本質是固定大小為 16KB 的內存塊
 在將高度值設回 Translation
 
 ***
-　
+
 ### 步驟1. 新增 Component
 
 ```c#
@@ -428,7 +428,7 @@ public struct PerlinSphere : IComponentData
 
 ### 步驟3. 計算方塊位置
 
-[![[Unity] Procedural Planets (E01 the sphere)]](https://www.youtube.com/watch?v=QN39W020LqU)
+[[Unity] Procedural Planets (E01 the sphere)](https://www.youtube.com/watch?v=QN39W020LqU)
 
 ### 步驟4. 將數據交給 Entities
 
@@ -477,7 +477,7 @@ protected override JobHandle OnUpdate(JobHandle inputDeps)
 }
 ```
 
-## 實作練習 02.PerlinSphere
+## 實作練習 03.Shooting
 
 <p align="center">
 <img style="margin:auto;"  src="https://github.com/ted10401/ECS-Practice/blob/master/GithubResources/unity_ecs_03_shooting.png">
