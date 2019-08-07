@@ -263,14 +263,14 @@ JobComponentSystem 則較為特殊
 並不能像 ComponentSystem 一樣直接取得 EntityQueryBuilder 來匹配 Entity
 而是需要透過 IJob、IJobForEach、IJobChunk...等方式來存取 Component 數據
   
-``
-[BurstCompile] 
-private struct TranslationJob : IJobForEach<Translation> 
-{ 
-　　public float deltaTime;　　　　　　　　　　　　
-　　public void Execute(ref Translation c0) 
-　　{ 
-　　　　c0.Value.y += deltaTime; 
-　　} 
-　　} 
-``
+  ```c#
+[BurstCompile]  
+private struct TranslationJob : IJobForEach<Translation>   
+{  
+　　public float deltaTime;  
+　　public void Execute(ref Translation c0)  
+　　{  
+　　　　c0.Value.y += deltaTime;  
+　　}  
+} 
+```
