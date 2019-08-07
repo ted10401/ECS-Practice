@@ -250,11 +250,11 @@ JobComponentSystem.OnUpdate(JobHandle inputDeps);
 能夠使用 Entities 來取得 EntityQueryBuilder
 並透過 ForEach 匹配出具有該系統需要的 Component 特性的 Entity
 
-```C#
-Entities.ForEach((ref Translation translation) => 
-{ 
-　　translation.Value.y = math.sin(deltaTime); 
-}); 
+```c#
+Entities.ForEach((ref Translation translation) =>  
+{  
+　　translation.Value.y = math.sin(deltaTime);   
+});  
 ```
 　　　　　　　　
 #### JobComponentSystem
