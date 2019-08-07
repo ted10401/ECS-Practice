@@ -329,10 +329,18 @@ Chunk 的本質是固定大小為 16KB 的內存塊
 
 ##  實作練習 01.PerlinGround
 
+<p align="center">
+<img style="margin:auto;"  src="https://github.com/ted10401/ECS-Practice/blob/master/GithubResources/unity_ecs_01_perlin_ground.png">
+</p>
+
+***
+
 最簡單的實作練習  
 利用每個方塊的 x, z 配合 Mathf.PerlinNoise 來取得特定時間的高度值  
 在將高度值設回 Translation
-　　
+
+***
+　
 ### 步驟1. 新增 Component
 
 ```c#
@@ -357,7 +365,9 @@ public struct PerlinGround : IComponentData
 
 ### 步驟4. 計算 Perlin Value
 
+```c#
 Mathf.PerlinNoise(x * scale + time * speed, z * scale + time * speed)
+```
 
 ### 步驟5. 新增 Job 進行計算
 
@@ -375,9 +385,94 @@ protected override JobHandle OnUpdate(JobHandle inputDeps)
 　　
 　　var job = new PerlinGroundJob()
 　　{
-　　  time = m_time
-    };
+　　　　time = m_time
+　　};
   
-    return job.Schedule(this, inputDeps);
+　　return job.Schedule(this, inputDeps);
+}
+```
+
+## 實作練習 02.PerlinSphere
+
+<p align="center">
+<img style="margin:auto;"  src="https://github.com/ted10401/ECS-Practice/blob/master/GithubResources/unity_ecs_02_perlin_sphere.png">
+</p>
+
+***
+
+PerlinGround 的變化版本  
+先計算出 Procedural Sphere 的頂點及三角面資訊  
+使用三角面求出中心點作為方塊位置  
+再利用方塊的 x, y, z 計算出 3D Perlin Value  
+接著搭配 normal direction 創造出位移並回傳至 Translation  
+
+***
+
+### 步驟1. 新增 Component
+
+```c#
+public struct PerlinSphere : IComponentData
+{
+　　public float waveScale;
+　　public float waveSpeed;
+　　public float waveHeight;
+　　public Vector3 center;
+　　public Vector3 normal;
+}
+```
+
+### 步驟2. 建立 Entities
+
+2a. 新增 Archetype (Translation, Rotation, RenderMesh, LocalToWorld, PerlinSphere)  
+2b. 使用 EntityManager.CreateEntity(entityArchetype, entities); 建立 Entities
+
+### 步驟3. 計算方塊位置
+
+[![[Unity] Procedural Planets (E01 the sphere)]](https://www.youtube.com/watch?v=QN39W020LqU)
+
+### 步驟4. 將數據交給 Entities
+
+4a. Translation  
+4b. Rotation  
+4c. RenderMesh  
+4d. PerlinSphere  
+
+### 步驟5. 計算 Perlin Value
+
+```c#
+public float Perlin3D(float x, float y, float z, float scale, float speed)
+{
+　　float AB = Mathf.PerlinNoise(x * scale+ time * speed, y * waveScale + time * speed);
+　　float BC = Mathf.PerlinNoise(y * scale+ time * speed, z * waveScale + time * speed);
+　　float AC = Mathf.PerlinNoise(x * scale+ time * speed, z * waveScale + time * speed);
+　　
+　　float BA = Mathf.PerlinNoise(y * scale+ time * speed, x * waveScale + time * waveSpeed);
+　　float CB = Mathf.PerlinNoise(z * scale+ time * speed, y * waveScale + time * waveSpeed);
+　　float CA = Mathf.PerlinNoise(z * scale+ time * speed, x * waveScale + time * speed);
+　　
+　　return (AB + BC + AC + BA + CB + CA) / 6;
+}
+```
+
+### 步驟6. 新增 Job 進行計算
+
+```c#
+[BurstCompile]
+private struct DynamicSphereJob : IJobForEach<Translation, PerlinSphere>
+```
+
+### 步驟7. 新增 System 執行 Job
+
+```c#
+protected override JobHandle OnUpdate(JobHandle inputDeps)
+{
+　　m_time = Time.timeSinceLevelLoad;
+　　
+　　var job = new DynamicSphereJob()
+　　{
+　　　　time = m_time
+　　};
+　　　　　　　　
+　　return job.Schedule(this, inputDeps);
 }
 ```
