@@ -476,3 +476,80 @@ protected override JobHandle OnUpdate(JobHandle inputDeps)
 　　return job.Schedule(this, inputDeps);
 }
 ```
+
+## 實作練習 02.PerlinSphere
+
+<p align="center">
+<img style="margin:auto;"  src="https://github.com/ted10401/ECS-Practice/blob/master/GithubResources/unity_ecs_03_shooting.png">
+</p>
+
+***
+
+子彈射擊  
+運作比 PerlinGround 或 Perlin Sphere 簡單許多  
+只需要知道子彈該在什麼位置發射  
+以及發射的方向及速度  
+接著就能完成順暢的大量子彈射擊練習  
+
+***
+
+### 步驟1. 建立 ShootingManager
+
+1a. 取得子彈發射位置  
+1b. 取得子彈材質、Mesh  
+1c. 取得子彈發射數量、速度  
+
+### 步驟2. 新增 Component
+
+```c#
+public struct Bullet : IComponentData
+{
+　　public float3 direction;
+　　public float speed;
+}
+```
+
+### 步驟3. 新增 ShootingSystem
+
+3a. 建立 Archetype  
+3b. 偵測玩家輸入  
+3c. 計算子彈方向  
+3d. 創建 Entities  
+
+### 步驟4. 將數據交給 Entities
+
+4a. Translation  
+4b. Rotation  
+4c. RenderMesh  
+4d. Bullet  
+
+### 步驟5. 新增 Job 進行計算
+
+```c#
+[BurstCompile]
+private struct BulletJob : IJobForEach<Translation, Bullet>
+{
+　　public float time;
+　　
+　　public void Execute(ref Translation c0, ref Bullet c1)
+　　{
+　　　　c0.Value += c1.direction * c1.speed * time;
+　　}
+}
+```
+
+### 步驟5. 新增 System 執行 Job
+
+```c#
+protected override JobHandle OnUpdate(JobHandle inputDeps)
+{
+　　m_time = Time.deltaTime;
+　　　　　　　　　　　　　　
+　　var job = new BulletJob()
+　　{
+　　　　time = m_time,
+　　};
+　　　　　　　　　　　　　　　　　　　　　　　　　　
+　　return job.Schedule(this, inputDeps);
+}
+```
