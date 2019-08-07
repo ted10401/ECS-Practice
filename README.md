@@ -329,8 +329,52 @@ Chunk 的本質是固定大小為 16KB 的內存塊
 
 ##  Unity ECS 實作練習 01.PerlinGround
 
-<p align="center">
-<img style="margin:auto;"  src="https://github.com/ted10401/ECS-Practice/blob/master/GithubResources/unity_ecs_01_perlin_ground.mp4">
-</p>
+最簡單的實作練習
+利用每個方塊的 x, z 配合 Mathf.PerlinNoise 來取得特定時間的高度值
+在將高度值設回 Translation
+　　
+### 步驟1. 新增 Component
 
-[![Watch the video](https://github.com/ted10401/ECS-Practice/blob/master/GithubResources/unity_ecs_01_perlin_ground.mp4)](https://github.com/ted10401/ECS-Practice/blob/master/GithubResources/unity_ecs_01_perlin_ground.mp4)
+```c#
+　　public struct PerlinGround : IComponentData
+　　{
+　　public float waveScale;
+　　public float waveSpeed;
+　　public float waveHeight;
+　　}
+```
+　　
+### 步驟2. 建立 Entities
+
+2a. 新增 Archetype (Translation,, RenderMesh, LocalToWorld, PerlinGround)  
+2b. 使用 EntityManager.CreateEntity(entityArchetype, entities); 建立 Entities
+　　
+### 步驟3. 將數據交給 Entities
+
+3a. Translation  
+3b. RenderMesh  
+3c. PerlinGround   
+　　
+### 步驟4. 計算 Perlin Value
+
+Mathf.PerlinNoise(x * scale + time * speed, z * scale + time * speed)
+　　
+### 步驟5. 新增 Job 進行計算
+
+```c#
+　　[BurstCompile]
+　　private struct PerlinGroundJob : IJobForEach<Translation, PerlinGround>
+　　
+　　步驟6. 新增 System 執行 Job
+　　protected override JobHandle OnUpdate(JobHandle inputDeps)
+　　{
+　　m_time = Time.timeSinceLevelLoad;
+　　
+　　var job = new PerlinGroundJob()
+　　{
+　　　　　　time = m_time
+　　　　　　　　};
+　　　　　　　　
+　　　　　　　　　　return job.Schedule(this, inputDeps);
+　　　　　　　　　　}
+```
