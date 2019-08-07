@@ -182,3 +182,94 @@ EntityManager 會將這些修改過的數據移動到新的內存塊存放
 所以不要在 Job 內執行添加或刪除 Component 的動作  
 取而代之的  
 可以使用 [EntityCommandBuffer] 在 Job 完成後執行添加或修改的需求  
+
+## System
+
+<p align="center">
+<img style="margin:auto;"  src="https://github.com/ted10401/ECS-Practice/blob/master/GithubResources/unity_ecs_system.png">
+</p>
+
+***
+
+System 是 ECS 架構中的第三個原則 S  
+負責針對特定 Component 的邏輯行為  
+  
+由於 ECS 的分層設計相當明確  
+每個層級需要負責的工作都遵循 SOLID 中的單一職責原則（Single Responsibility Principle）  
+E: Entity，負責索引  
+C: Component，負責資料存儲  
+S: System，負責邏輯行為  
+
+***
+
+### 如何建立 System?
+
+#### 繼承 ComponentSystem
+
+只會在主線程執行
+
+#### 繼承 JobComponentSystem
+
+利用 Unity 特有的 JobSystem 來進行多線程處理  
+但需要額外使用 JobHandle、IJob、IJobForEach 等進行配合
+
+***
+
+### 如何使用 System?
+
+#### ComponentSystemBase
+
+無論是 ComponentSystem 或 JobComponentSystem 都繼承於 ComponentSystemBase  
+提供了幾個虛函數供外部複寫  
+  
+ComopnentSystemBase.OnCreateManager();  
+ComopnentSystemBase.OnDestroyManager();  
+ComopnentSystemBase.OnCreate();  
+ComopnentSystemBase.OnStartRunning();  
+ComopnentSystemBase.OnStopRunning();  
+ComopnentSystemBase.OnDestroy();  
+ComopnentSystemBase.OnBeforeCreateInternal(World world);  
+ComopnentSystemBase.OnBeforeDestroyInternal();  
+
+#### OnUpdate
+
+此外 ComponentSystem 和 JobComponentSystem 都分別提供了 OnUpdate 抽象函數  
+ComponentSystem.OnUpdate();  
+JobComponentSystem.OnUpdate(JobHandle inputDeps);  
+讓開發者能夠針對不同的 System 處理不同的 per frame logic  
+
+***
+
+### 如何取得 Entities 及 Components?
+
+創建 Entity 及賦予 Component 特性後
+如何使用這些 Component 特性來處理邏輯行為就是 System 最重要的工作
+　　
+#### ComponentSystem
+
+能夠使用 Entities 來取得 EntityQueryBuilder
+並透過 ForEach 匹配出具有該系統需要的 Component 特性的 Entity
+``
+Entities.ForEach((ref Translation translation) => 
+{ 
+　　translation.Value.y = math.sin(deltaTime); 
+}); 
+``
+　　　　　　　　
+#### JobComponentSystem
+
+JobComponentSystem 則較為特殊
+並不能像 ComponentSystem 一樣直接取得 EntityQueryBuilder 來匹配 Entity
+而是需要透過 IJob、IJobForEach、IJobChunk...等方式來存取 Component 數據
+  
+``
+[BurstCompile] 
+private struct TranslationJob : IJobForEach<Translation> 
+{ 
+　　public float deltaTime;　　　　　　　　　　　　
+　　public void Execute(ref Translation c0) 
+　　{ 
+　　　　c0.Value.y += deltaTime; 
+　　} 
+　　} 
+``
