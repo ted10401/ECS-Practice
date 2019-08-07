@@ -333,4 +333,4 @@ Chunk 的本質是固定大小為 16KB 的內存塊
 <img style="margin:auto;"  src="https://github.com/ted10401/ECS-Practice/blob/master/GithubResources/unity_ecs_01_perlin_ground.mp4">
 </p>
 
-[![Watch the video]](https://github.com/ted10401/ECS-Practice/blob/master/GithubResources/unity_ecs_01_perlin_ground.mp4)
+[![Watch the video](https://github.com/ted10401/ECS-Practice/blob/master/GithubResources/unity_ecs_01_perlin_ground.mp4)](https://github.com/ted10401/ECS-Practice/blob/master/GithubResources/unity_ecs_01_perlin_ground.mp4)
