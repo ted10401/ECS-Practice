@@ -326,3 +326,9 @@ Chunk 的本質是固定大小為 16KB 的內存塊
 當一個相同特性的 Entity 產生時  
 若 Chunk 剩餘大小足夠，則會將 Component 的數據直接放置  
 若 Chunk 剩餘大小不足，則會產生一個新的 Chunk 並將它鏈接再一起  
+
+##  Unity ECS 實作練習 01.PerlinGround
+
+<p align="center">
+<img style="margin:auto;"  src="https://github.com/ted10401/ECS-Practice/blob/master/GithubResources/unity_ecs_01_perlin_ground.mp4">
+</p>
