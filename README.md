@@ -256,7 +256,7 @@ Entities.ForEach((ref Translation translation) =>
 　　translation.Value.y = math.sin(deltaTime);   
 });  
 ```
-　　　　　　　　
+
 #### JobComponentSystem
 
 JobComponentSystem 則較為特殊
@@ -274,3 +274,55 @@ private struct TranslationJob : IJobForEach<Translation>
 　　}  
 } 
 ```
+
+## Archetype
+
+<p align="center">
+<img style="margin:auto;"  src="https://github.com/ted10401/ECS-Practice/blob/master/GithubResources/unity_ecs_archetype.png">
+</p>
+
+***
+
+Archetype 是 Unity ECS 特有的資料結構及概念  
+  
+在 ECS 架構中  
+一個 Entity 具有什麼特性  
+完全取決於它掛載了什麼 Component  
+複數 Component 組合起來就成為一種能力組  
+  
+ArcheType 主要權責就是管理這唯一的能力組  
+透過它能夠快速訪問擁有此能力組的 Entity  
+換句話說在 ECS 架構中  
+只要 Entity 內有包含 Component 就一定代表它隸屬於某個 Archetype  
+
+***
+
+### 如何創建 Archetype?
+
+EntityManager.CreateArchetype (params ComponentType[] types);
+
+***
+
+### 如何用 Archetype 創建 Entity?
+
+EntityManager.CreateEntity (EntityArchetype archetype);
+
+## Chunk
+
+<p align="center">
+<img style="margin:auto;"  src="https://github.com/ted10401/ECS-Practice/blob/master/GithubResources/unity_ecs_chunk.png">
+</p>
+
+***
+
+Chunk 與 Archetype 一樣都是 Unity ECS 特有的資料結構及概念   
+由於 Entity 只含有識別實體的 ID  
+如何高效的匹配 Entity 就是 Chunk 的作用  
+  
+Chunk 的本質是固定大小為 16KB 的內存塊  
+每一個相連的 Chunk 都具有相同的內存佈局  
+而 Entity 在添加或刪除 Component 時會使內存佈局改變  
+  
+當一個相同特性的 Entity 產生時  
+若 Chunk 剩餘大小足夠，則會將 Component 的數據直接放置  
+若 Chunk 剩餘大小不足，則會產生一個新的 Chunk 並將它鏈接再一起  
