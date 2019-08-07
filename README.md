@@ -1,4 +1,4 @@
-# ECS-Practice
+# Unity ECS 初步認識
 
 ## Entities
 
@@ -66,3 +66,112 @@ EntityManager.DestroyEntity (Entity entity);
 EntityManager.DestroyEntity (NativeSlice<Entity> entities);  
 EntityManager.DestroyEntity (NativeArray<Entity> entities);  
 EntityManager.DestroyEntity (EntityQuery entityQueryFilter);  
+
+## Component
+
+<p align="center">
+<img style="margin:auto;"  src="https://github.com/ted10401/ECS-Practice/blob/master/GithubResources/unity_ecs_component.png">
+</p>
+
+Component 是 ECS 架構中的第二個原則 C  
+Component 本質代表了遊戲或專案中的資料  
+
+***
+
+### Component 是如何存放的？
+
+EntityManager 會透過 Archetype 來管理不同的 Component 組合  
+將擁有相同 Archetype 的 Entities 存儲在內存區塊 Chunk 中  
+在同一個 Chunk 中的所有實體都擁有相同的 Component 組合  
+    
+在 Entity 添加或刪除 Component  
+抑或是修改 SharedComponent 數據時  
+EntityManager 會將 Entity 移動至其他 Chunk 中  
+若必要則直接產生新 Chunk 供存放
+
+***
+
+### 如何建立 Component?
+　　
+只要擁有下列這些接口的組件就代表為 ECS 中的 Component  
+IComponentData  
+ISharedComponentData  
+ISystemStateComponentData  
+ISharedSystemStateComponentData  
+　　
+通常繼承 IComponentData 或 ISharedComponentData  
+兩個接口都是空接口單純為了進行組件標記  
+兩者最大的差異是  
+　　
+IComponentData 中的數據是個別獨立的  
+每一組 IComponentData 在添加時  
+都會在 Chunk 中獨立佔用一份資源  
+　　
+ISharedComponentData 則會將數據共享於複數 Entities 中  
+例：Unity.Rendering.RenderMesh  
+但過度使用 SharedComponentData 會導致 Chunk 使用率降低  
+因為它會根據組件中每種唯一值組合去擴展所需要的 Chunk 數  
+
+***
+
+### 如何添加 Components?
+
+#### 建立 Entity 時添加
+
+EntityManager.CreateEntity (params ComponentType[] types)
+
+#### 動態添加
+  
+IComponentData  
+EntityManager.AddChunkComponentData<T> (EntityQuery entityQuery, T componentData) where T : struct, IComponentData;  
+EntityManager.AddChunkComponentData<T> (Entity entity);  
+EntityManager.AddComponent (NativeArray<Entity> entities, ComponentType componentType);  
+EntityManager.AddComponent (EntityQuery entityQuery, ComponentType componentType);  
+EntityManager.AddComponent (Entity entity, ComponentType componentType);  
+EntityManager.AddComponentData<T> (Entity entity, T componentData)  
+EntityManager.AddComponentObject (Entity entity, object componentData);  
+EntityManager.AddComponentRaw (Entity entity, int typeIndex);  
+EntityManager.AddComponents (Entity entity, ComponentTypes types);  
+  
+ISharedComponentData  
+EntityManager.AddSharedComponentData<T> (EntityQuery entityQuery, T componentData)  
+EntityManager.AddSharedComponentData<T> (Entity entity, T componentData)  
+  
+#### 使用 Archetype 建立
+  
+EntityManager.CreateEntity (EntityArchetype Archetype);  
+EntityManager.CreateEntity (EntityArchetype Archetype, NativeArray<Entity> entities);  
+  　
+***
+  　
+### 如何刪除 Components?
+  
+EntityManager.RemoveChunkComponent<T> (Entity entity);  
+EntityManager.RemoveChunkComponentData<T> (EntityQuery entityQuery);  
+EntityManager.RemoveComponent<T> (Entity entity);  
+EntityManager.RemoveComponent (NativeArray<Entity> entities, ComponentType type);  
+EntityManager.RemoveComponent (EntityQuery entityQueryFilter, ComponentTypes types);  
+EntityManager.RemoveComponent (EntityQuery entityQuery, ComponentType componentType);  
+EntityManager.RemoveComponent (Entity entity, ComponentType type);  
+
+***
+
+### 如何修改 Components?
+  
+SetChunkComponentData<T> (ArchetypeChunk chunk, T componentValue);  
+SetComponentData<T> (Entity entity, T componentData);  
+SetSharedComponentData<T> (Entity entity, T componentData);  
+  
+***
+  
+### 添加、刪除 Components 時需要注意什麼?
+  
+上面有提到當 Entity 添加或刪除 Component 時  
+由於該 Entity Component 組合改變會連帶改變 Archetype  
+EntityManager 會將這些修改過的數據移動到新的內存塊存放  
+  
+而一般狀況下可以盡情的添加或刪除  
+但若在 Job 中添加或刪除 Component 會導致 Job 正在處理的資料無效  
+所以不要在 Job 內執行添加或刪除 Component 的動作  
+取而代之的  
+可以使用 [EntityCommandBuffer] 在 Job 完成後執行添加或修改的需求  
